@@ -12,9 +12,9 @@ type User struct {
 	UpdatedAt time.Time `gorm:"default:current_timestamp()" json:"updated_at"`
 }
 type UpdateUser struct {
-	Firstname string  `json:"firstname",omitempty`
-	Lastname  string  `json:"lastname,omitempty"`
-	Email     string  `json:"email,omitempty"`
+	Firstname *string `json:"firstname",omitempty`
+	Lastname  *string `json:"lastname,omitempty"`
+	Email     *string `json:"email,omitempty"`
 	Password  *string `json:"password,omitempty"`
 }
 type LoginVar struct {

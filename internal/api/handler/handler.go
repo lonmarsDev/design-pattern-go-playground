@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 
+	"github.com/go-chi/chi"
 	"github.com/realpamisa/RestAPI/internal/api/model"
 	"github.com/realpamisa/RestAPI/internal/api/repository"
 	repo "github.com/realpamisa/RestAPI/internal/api/repository"
@@ -24,10 +24,43 @@ func Init() *Handler {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("get user"))
+	userID := chi.URLParam(r, "id")
+	db, err := mysql.Connect()
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+	}
+
+	repo := repo.NewRepositoryUserCRUD(db)
+	func(userRepository repository.UserRepository) {
+		user, err := userRepository.FindByID(userID)
+		if err != nil {
+			response.ERROR(w, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		w.Header().Set("Location", fmt.Sprintf("%s%s/%d", r.Host, r.RequestURI, user))
+		response.JSON(w, http.StatusCreated, user)
+	}(repo)
 
 }
 func GetUsers(w http.ResponseWriter, r *http.Request) {
+	db, err := mysql.Connect()
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+	}
+
+	repo := repo.NewRepositoryUserCRUD(db)
+
+	func(userRepository repository.UserRepository) {
+		user, err := userRepository.FindAll()
+		if err != nil {
+			response.ERROR(w, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		w.Header().Set("Location", fmt.Sprintf("%s%s/%d", r.Host, r.RequestURI, user))
+		response.JSON(w, http.StatusCreated, user)
+	}(repo)
 }
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user model.User
@@ -72,12 +105,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 //Update user from db
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user model.UpdateUser
-	fmt.Println("Update user")
 
-	//get url params
-	cur1 := r.URL.Query().Get("id")
-	fmt.Println(cur1)
-	os.Exit(1)
+	userID := chi.URLParam(r, "id")
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		response.ERROR(w, http.StatusUnprocessableEntity, err)
@@ -107,7 +136,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	repo := repo.NewRepositoryUserCRUD(db)
 	func(userRepository repository.UserRepository) {
-		user, err := userRepository.Update(cur1, user)
+		user, err := userRepository.Update(userID, user)
 		if err != nil {
 			response.ERROR(w, http.StatusUnprocessableEntity, err)
 			return
@@ -118,5 +147,21 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}(repo)
 }
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Delete user"))
+	userID := chi.URLParam(r, "id")
+	db, err := mysql.Connect()
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+	}
+
+	repo := repo.NewRepositoryUserCRUD(db)
+	func(userRepository repository.UserRepository) {
+		user, err := userRepository.FindByID(userID)
+		if err != nil {
+			response.ERROR(w, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		w.Header().Set("Location", fmt.Sprintf("%s%s/%d", r.Host, r.RequestURI, user))
+		response.JSON(w, http.StatusCreated, user)
+	}(repo)
 }
