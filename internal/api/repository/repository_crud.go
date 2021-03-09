@@ -1,9 +1,8 @@
 package repository
 
 import (
-	"fmt"
-
 	"github.com/realpamisa/RestAPI/internal/api/model"
+	"github.com/realpamisa/RestAPI/pkg/jwt"
 	"gorm.io/gorm"
 )
 
@@ -67,7 +66,7 @@ func (u *userRepositoryCrud) FindByID(id string) (model.User, error) {
 func (u *userRepositoryCrud) Delete(id string) (bool, error) {
 	var user model.User
 
-	err := u.db.Delete(user, "id= ", id).Error
+	err := u.db.Delete(&user, "id= ", id).Error
 	if err != nil {
 		return false, err
 	}
@@ -75,8 +74,20 @@ func (u *userRepositoryCrud) Delete(id string) (bool, error) {
 }
 
 func (u *userRepositoryCrud) FindAll() ([]model.User, error) {
-	fmt.Println("check findall")
 	var users []model.User
 	u.db.Find(&users)
 	return users, nil
+}
+
+func (u *userRepositoryCrud) Login(login model.LoginVar) (bool, error) {
+	var user model.User
+	err := u.db.Where("email = ?", login.Email).Find(&user).Error
+	if err != nil {
+		return false, err
+	}
+	checkPass := jwt.ComparePasswords(user.Password, []byte(login.Password))
+	if checkPass {
+		return true, nil
+	}
+	return false, nil
 }

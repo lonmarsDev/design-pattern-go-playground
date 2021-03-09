@@ -38,4 +38,9 @@ var urlRoutes = []RouteSVC{
 		Method:  http.MethodDelete,
 		Handler: handler.DeleteUser,
 	},
+	RouteSVC{
+		Uri:     "/users/login",
+		Method:  http.MethodPost,
+		Handler: handler.Login,
+	},
 }

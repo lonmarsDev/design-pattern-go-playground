@@ -8,4 +8,5 @@ type UserRepository interface {
 	FindByID(id string) (model.User, error)
 	Delete(id string) (bool, error)
 	FindAll() ([]model.User, error)
+	Login(user model.LoginVar) (bool, error)
 }

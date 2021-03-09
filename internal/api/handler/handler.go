@@ -165,3 +165,35 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		response.JSON(w, http.StatusCreated, user)
 	}(repo)
 }
+
+func Login(w http.ResponseWriter, r *http.Request) {
+
+	var loginVar model.LoginVar
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		response.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	err = json.Unmarshal(body, &loginVar)
+	if err != nil {
+		response.ERROR(w, http.StatusUnprocessableEntity, err)
+	}
+
+	db, err := mysql.Connect()
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+	}
+	repo := repo.NewRepositoryUserCRUD(db)
+	func(userRepository repository.UserRepository) {
+		user, err := userRepository.Login(loginVar)
+		if err != nil {
+			response.ERROR(w, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		w.Header().Set("Location", fmt.Sprintf("%s%s/%d", r.Host, r.RequestURI, user))
+		response.JSON(w, http.StatusCreated, user)
+	}(repo)
+}
