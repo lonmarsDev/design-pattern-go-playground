@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/realpamisa/RestAPI/internal/api/model"
 	"github.com/realpamisa/RestAPI/internal/api/repository"
-	repo "github.com/realpamisa/RestAPI/internal/api/repository"
 
 	"github.com/realpamisa/RestAPI/internal/api/response"
 	"github.com/realpamisa/RestAPI/pkg/jwt"
@@ -30,7 +29,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusInternalServerError, err)
 	}
 
-	repo := repo.NewRepositoryUserCRUD(db)
+	repo := repository.NewRepositoryUserCRUD(db)
 	func(userRepository repository.UserRepository) {
 		user, err := userRepository.FindByID(userID)
 		if err != nil {
@@ -49,7 +48,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusInternalServerError, err)
 	}
 
-	repo := repo.NewRepositoryUserCRUD(db)
+	repo := repository.NewRepositoryUserCRUD(db)
 
 	func(userRepository repository.UserRepository) {
 		user, err := userRepository.FindAll()
@@ -88,7 +87,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Email:     user.Email,
 		Password:  *hashPassword,
 	}
-	repo := repo.NewRepositoryUserCRUD(db)
+	repo := repository.NewRepositoryUserCRUD(db)
 	func(userRepository repository.UserRepository) {
 		user, err := userRepository.Save(newUser)
 		if err != nil {
@@ -134,7 +133,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusInternalServerError, err)
 	}
 
-	repo := repo.NewRepositoryUserCRUD(db)
+	repo := repository.NewRepositoryUserCRUD(db)
 	func(userRepository repository.UserRepository) {
 		user, err := userRepository.Update(userID, user)
 		if err != nil {
@@ -153,7 +152,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusInternalServerError, err)
 	}
 
-	repo := repo.NewRepositoryUserCRUD(db)
+	repo := repository.NewRepositoryUserCRUD(db)
 	func(userRepository repository.UserRepository) {
 		user, err := userRepository.FindByID(userID)
 		if err != nil {
@@ -185,7 +184,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 	}
-	repo := repo.NewRepositoryUserCRUD(db)
+	repo := repository.NewRepositoryUserCRUD(db)
 	func(userRepository repository.UserRepository) {
 		user, err := userRepository.Login(loginVar)
 		if err != nil {
